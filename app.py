@@ -5,6 +5,7 @@ import json
 
 from cogs.utils import Utils
 from cogs.weather import Weather
+from cogs.tamagotchi.app import TamagotchiTicker
 
 secrets_file = "secrets.json"
 with open(secrets_file) as secrets_file_contents:
@@ -24,15 +25,25 @@ bot = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intents)
 async def on_ready():
     print(f"Logged in as {bot.user} (ID: {bot.user.id})")
     print("------")
-    print("Registering Cogs!")
-    # Register cogs
-    await bot.add_cog(Utils(bot))
-    await bot.add_cog(Weather(bot))
+    
+    await register_cogs()
 
-    # Sync
+    # Sync Slash Commands
     await bot.tree.sync()
-    print("Cogs registered!")
 
+    # reaper = TamagotchiTicker()
+    # reaper.add_pet()
+
+async def register_cogs():
+    print("Registering Cogs!")
+    await bot.add_cog(Utils(bot))
+    print("Utils loaded!")
+    await bot.add_cog(Weather(bot))
+    print("Weather API loaded!")
+    await bot.add_cog(TamagotchiTicker(bot))
+    print("Ticker loaded")
+
+    print("Cogs registered!")
 
 @bot.command()
 async def add(ctx, left: int, right: int):
