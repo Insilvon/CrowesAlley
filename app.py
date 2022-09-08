@@ -25,7 +25,7 @@ bot = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intents)
 async def on_ready():
     print(f"Logged in as {bot.user} (ID: {bot.user.id})")
     print("------")
-    
+
     await register_cogs()
 
     # Sync Slash Commands
@@ -33,6 +33,7 @@ async def on_ready():
 
     # reaper = TamagotchiTicker()
     # reaper.add_pet()
+
 
 async def register_cogs():
     print("Registering Cogs!")
@@ -44,6 +45,7 @@ async def register_cogs():
     print("Ticker loaded")
 
     print("Cogs registered!")
+
 
 @bot.command()
 async def add(ctx, left: int, right: int):
