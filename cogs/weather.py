@@ -1,11 +1,10 @@
-from sqlite3 import paramstyle
+import json
 import discord
 from discord.ext import commands
-
 from discord import app_commands
-
 import requests
-import json
+
+REQUEST_TIMEOUT_SECONDS = 10
 
 
 class Weather(commands.Cog):
@@ -17,7 +16,7 @@ class Weather(commands.Cog):
 
     def load_api_key_from_secrets(self) -> None:
         secrets_file = "secrets.json"
-        with open(secrets_file) as secrets_file_contents:
+        with open(secrets_file, encoding="utf-8") as secrets_file_contents:
             secrets = json.load(secrets_file_contents)
         self.openweathermap_api_key = secrets["openweathermap_api_key"]
 
@@ -31,21 +30,24 @@ class Weather(commands.Cog):
             weather = self.get_weather_by_geo_location(geo_location)
             embed = WeatherResponse(weather, geo_location).create_embed()
             await interaction.response.send_message(embed=embed)
-        except Exception as e:
+        except Exception:
             await interaction.response.send_message(
-                f"There was an error with your command."
+                "There was an error with your command."
             )
 
     def get_geo_location(self, query: str) -> dict:
-        url = f"http://api.openweathermap.org/geo/1.0/zip?zip={query},US&appid={self.openweathermap_api_key}"
-        return self.weather_client(url)
+        url = "http://api.openweathermap.org/geo/1.0/zip?"
+        url_with_params = f"{url}zip={query},US&appid={self.openweathermap_api_key}"
+        return self.weather_client(url_with_params)
 
     def get_weather_by_geo_location(self, geo_location: dict) -> dict:
-        url = f"https://api.openweathermap.org/data/2.5/weather?lat={geo_location['lat']}&lon={geo_location['lon']}&appid={self.openweathermap_api_key}"
-        return self.weather_client(url)
+        url = "https://api.openweathermap.org/data/2.5/weather?"
+        url_with_params = f"{url}lat={geo_location['lat']}&lon={geo_location['lon']}&appid={self.openweathermap_api_key}"
+        return self.weather_client(url_with_params)
 
     def weather_client(self, url: str) -> dict:
-        response = requests.get(url=url)
+
+        response = requests.get(url=url, timeout=REQUEST_TIMEOUT_SECONDS)
         print(f"Got response {response.text}")
         return response.json()
 

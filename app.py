@@ -1,14 +1,14 @@
+import json
+
 import discord
 from discord.ext import commands
 
-import json
+from .cogs.utils import Utils
+from .cogs.weather import Weather
+from .cogs.tamagotchi.commands import TamagotchiCommands
 
-from cogs.utils import Utils
-from cogs.weather import Weather
-from cogs.tamagotchi.app import TamagotchiTicker
-
-secrets_file = "secrets.json"
-with open(secrets_file) as secrets_file_contents:
+SECRETS_FILE = "secrets.json"
+with open(SECRETS_FILE, encoding="utf-8") as secrets_file_contents:
     secrets = json.load(secrets_file_contents)
 
 COMMAND_PREFIX = secrets["command_prefix"]
@@ -34,7 +34,7 @@ async def register_cogs():
     print("Utils loaded!")
     await bot.add_cog(Weather(bot))
     print("Weather API loaded!")
-    await bot.add_cog(TamagotchiTicker(bot))
+    await bot.add_cog(TamagotchiCommands(bot))
     print("Tamagotchis loaded")
 
     print("Cogs registered!")
