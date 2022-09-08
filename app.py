@@ -24,15 +24,8 @@ bot = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intents)
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user} (ID: {bot.user.id})")
-    print("------")
-
     await register_cogs()
-
-    # Sync Slash Commands
     await bot.tree.sync()
-
-    # reaper = TamagotchiTicker()
-    # reaper.add_pet()
 
 
 async def register_cogs():
@@ -42,15 +35,9 @@ async def register_cogs():
     await bot.add_cog(Weather(bot))
     print("Weather API loaded!")
     await bot.add_cog(TamagotchiTicker(bot))
-    print("Ticker loaded")
+    print("Tamagotchis loaded")
 
     print("Cogs registered!")
-
-
-@bot.command()
-async def add(ctx, left: int, right: int):
-    """Adds two numbers together."""
-    await ctx.send(left + right)
 
 
 bot.run(DISCORD_TOKEN)
