@@ -20,16 +20,13 @@ class TamagotchiTicker(commands.Cog):
 
     @tasks.loop(seconds=TICK_TIME_SECONDS)
     async def tick(self):
-        print("Ticking!")
         for user_id in self.living_pets:
             for pet in self.living_pets[user_id]:
                 self.age_pet(pet)
 
     def age_pet(self, pet):
         pet.modify_hunger(-1)
-        print(pet.get_stats())
         if not pet.alive:
-            print("This pet has died!")
             self.living_pets.remove(pet)
             self.dead_pets.append(pet)
     
@@ -44,7 +41,12 @@ class TamagotchiTicker(commands.Cog):
     @app_commands.command(name="tamagotchi", description="take care of virtual pets!")
     @app_commands.describe(command="list | view | add")
     @app_commands.describe(pet_name="Name for your new pet")
-    async def tamagotchi(self, interaction: discord.Interaction, command: str, pet_name: str) -> None:
+    async def tamagotchi(
+        self,
+        interaction: discord.Interaction,
+        command: str,
+        pet_name: str = None
+    ) -> None:
         self.setup_user(interaction)
 
         if command == "list":
@@ -62,7 +64,6 @@ class TamagotchiTicker(commands.Cog):
             self.living_pets[user_id] = []
         if user_id not in self.dead_pets:
             self.dead_pets[user_id] = []
-        print(self.living_pets)
 
     async def list(self, interaction: discord.Interaction) -> None:
         user_id = interaction.user.id
@@ -99,7 +100,6 @@ class TamagotchiTicker(commands.Cog):
         for pet in user_pets_living:
             if pet.name == pet_name:
                 embed = pet.create_embed()
-                print(f"GOT EMBED: {embed}")
                 await interaction.response.send_message(embed=embed)
                 return
                 
@@ -107,23 +107,19 @@ class TamagotchiTicker(commands.Cog):
         for pet in user_pets_dead:
             if pet.name == pet_name:
                 embed = pet.create_embed()
-                print(f"GOT EMBED: {embed}")
                 await interaction.response.send_message(embed=embed)
                 return
         
         await interaction.response.send_message("No pet found with that name.")
     
     async def add(self, interaction: discord.Interaction, name: str) -> None:
+        if not name:
+            await interaction.response.send_message(f"You must provide a name!")
         user_id = interaction.user.id
-        print(user_id)
-        print(self.living_pets)
-        print(self.living_pets[user_id])
         self.living_pets[user_id].append(Tamagotchi(name=name))
-        print(self.living_pets)
         await interaction.response.send_message(f"Added {name}!")
     
     def create_embed(self, title, fields):
-        print(f"GOT FIELDS {fields}")
         embed = discord.Embed(title=title)
         for field in fields:
             embed.add_field(name=field["name"], value=field["value"])
@@ -148,9 +144,6 @@ class Tamagotchi():
         self.health = self.max_health
         self.hunger = self.max_hunger
         self.birthdate = datetime.datetime.now()
-        print(f"Set health to {self.health}")
-        print(f"Set hunger to {self.hunger}")
-        print(f"Set birthdate to {self.birthdate}")
     
     def modify_hunger(self, amount):
         new_hunger = self.hunger + amount
@@ -182,7 +175,6 @@ class Tamagotchi():
     def get_time_alive(self):
         current_datetime = datetime.datetime.now()
         difference = current_datetime - self.birthdate
-        print(difference)
         return difference
     
     def get_happiness(self):
