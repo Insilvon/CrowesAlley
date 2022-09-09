@@ -3,9 +3,9 @@ import json
 import discord
 from discord.ext import commands
 
-from .cogs.utils import Utils
-from .cogs.weather import Weather
-from .cogs.tamagotchi.commands import TamagotchiCommands
+from cogs.utils import Utils
+from cogs.weather import Weather
+from cogs.tamagotchi.commands import TamagotchiCommands
 
 SECRETS_FILE = "secrets.json"
 with open(SECRETS_FILE, encoding="utf-8") as secrets_file_contents:

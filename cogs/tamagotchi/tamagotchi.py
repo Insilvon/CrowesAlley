@@ -1,7 +1,7 @@
 import datetime
 import discord
 
-
+#TODO: MAKE THIS JSON SERIALIZABLE
 class Tamagotchi:
     name: str = None
     birthdate: datetime = None
