@@ -4,6 +4,7 @@ from discord.ext import commands
 from discord import app_commands
 
 from .ticker import Ticker
+from .store import Store
 from .tamagotchi import Tamagotchi
 
 
@@ -13,7 +14,8 @@ class TamagotchiCommands(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.ticker = Ticker()
+        self.store = Store()
+        self.ticker = Ticker(self.store)
 
     @app_commands.command(name="tamagotchi", description="take care of virtual pets!")
     @app_commands.describe(command="list | view | add")
@@ -34,15 +36,15 @@ class TamagotchiCommands(commands.Cog):
 
     def setup_user(self, interaction: discord.Interaction) -> None:
         user_id = interaction.user.id
-        if user_id not in self.ticker.living_pets:
-            self.ticker.living_pets[user_id] = []
-        if user_id not in self.ticker.dead_pets:
-            self.ticker.dead_pets[user_id] = []
+        if user_id not in self.store.living_pets:
+            self.store.living_pets[user_id] = []
+        if user_id not in self.store.dead_pets:
+            self.store.dead_pets[user_id] = []
 
     async def list(self, interaction: discord.Interaction) -> None:
         user_id = interaction.user.id
-        user_pets_living = self.ticker.living_pets[user_id]
-        user_pets_dead = self.ticker.dead_pets[user_id]
+        user_pets_living = self.store.living_pets[user_id]
+        user_pets_dead = self.store.dead_pets[user_id]
 
         fields = [
             {
@@ -70,14 +72,14 @@ class TamagotchiCommands(commands.Cog):
     async def view(self, interaction: discord.Interaction, pet_name: str) -> None:
         user_id = interaction.user.id
 
-        user_pets_living = self.ticker.living_pets[user_id]
+        user_pets_living = self.store.living_pets[user_id]
         for pet in user_pets_living:
             if pet.name == pet_name:
                 embed = pet.create_embed()
                 await interaction.response.send_message(embed=embed)
                 return
 
-        user_pets_dead = self.ticker.dead_pets[user_id]
+        user_pets_dead = self.store.dead_pets[user_id]
         for pet in user_pets_dead:
             if pet.name == pet_name:
                 embed = pet.create_embed()
@@ -91,7 +93,7 @@ class TamagotchiCommands(commands.Cog):
             await interaction.response.send_message("You must provide a name!")
             return
         user_id = interaction.user.id
-        self.ticker.living_pets[user_id].append(Tamagotchi(name=name))
+        self.store.living_pets[user_id].append(Tamagotchi(name=name))
         await interaction.response.send_message(f"Added {name}!")
 
     def create_embed(self, title, fields):
